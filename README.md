@@ -12,9 +12,9 @@ of distinct values, without any particular order.
 package main
 
 import (
-	"fmt"
+    "fmt"
 	
-	"github.com/trivigy/set"
+    "github.com/trivigy/set"
 )
 
 func main() {
