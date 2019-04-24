@@ -1,3 +1,3 @@
-module github.com/trivigy/multiset
+module github.com/trivigy/set
 
 go 1.12
