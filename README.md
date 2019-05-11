@@ -1,5 +1,4 @@
 # Set
-[![Travis (.com) branch](https://img.shields.io/travis/com/trivigy/set/master.svg?logo=travis)](https://travis-ci.com/trivigy/set)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![](https://godoc.org/github.com/trivigy/set?status.svg&style=flat)](http://godoc.org/github.com/trivigy/set)
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/trivigy/set.svg?style=flat&color=e36397&label=release)
