@@ -101,7 +101,7 @@ func (s *Set) IsEmpty() bool {
 	return s.size() == 0
 }
 
-// Size returns the total number of elements in this multiset.
+// Size returns the total number of elements in this set.
 func (s *Set) Size() int {
 	s.RLock()
 	defer s.RUnlock()
@@ -157,4 +157,91 @@ func (s *Set) ToSlice() []interface{} {
 		slice = append(slice, elem)
 	}
 	return slice
+}
+
+// Subset determines if every item in the other set is in this set.
+func (s *Set) Subset(o *Set) bool {
+	s.RLock()
+	defer s.RUnlock()
+	for elem := range s.elems {
+		if !o.contains(elem) {
+			return false
+		}
+	}
+	return true
+}
+
+// Superset determines if every item of this set is in the other set.
+func (s *Set) Superset(o *Set) bool {
+	return o.Subset(s)
+}
+
+// Union returns a new set with all items in both sets.
+func (s *Set) Union(o *Set) *Set {
+	s.RLock()
+	defer s.RUnlock()
+	return s.union(o)
+}
+
+func (s *Set) union(o *Set) *Set {
+	union := New()
+	for elem := range o.elems {
+		union.add(elem)
+	}
+	for elem := range s.elems {
+		union.add(elem)
+	}
+	return union
+}
+
+// Intersect returns a new set with items that exist only in both sets.
+func (s *Set) Intersect(o *Set) *Set {
+	s.RLock()
+	defer s.RUnlock()
+	return s.intersect(o)
+}
+
+func (s *Set) intersect(o *Set) *Set {
+	intersect := New()
+	// loop over smaller set
+	if s.size() < o.size() {
+		for elem := range s.elems {
+			if o.contains(elem) {
+				intersect.add(elem)
+			}
+		}
+	} else {
+		for elem := range o.elems {
+			if s.contains(elem) {
+				intersect.add(elem)
+			}
+		}
+	}
+	return intersect
+}
+
+// Diff returns a new set with items in the current set but not in the other
+// set.
+func (s *Set) Diff(o *Set) *Set {
+	s.RLock()
+	defer s.RUnlock()
+	return s.diff(o)
+}
+
+func (s *Set) diff(o *Set) *Set {
+	diff := New()
+	for elem := range s.elems {
+		if !o.contains(elem) {
+			diff.add(elem)
+		}
+	}
+	return diff
+}
+
+// SymDiff returns a new set with items in the current set or the other set but
+// not in both.
+func (s *Set) SymDiff(o *Set) *Set {
+	s.RLock()
+	defer s.RUnlock()
+	return s.diff(o).union(o.diff(s))
 }

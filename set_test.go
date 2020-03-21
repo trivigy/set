@@ -99,3 +99,79 @@ func ExampleSet_Iter() {
 	// a
 	// b
 }
+
+func ExampleSet_Subset() {
+	m1 := New("a", "b", "c")
+	m2 := New("c", "b")
+	fmt.Println(m2.Subset(m1))
+	// Output:
+	// true
+}
+
+func ExampleSet_Superset() {
+	m1 := New("a", "b", "c")
+	m2 := New("c", "b")
+	fmt.Println(m1.Superset(m2))
+	// Output:
+	// true
+}
+
+func ExampleSet_Union() {
+	m1 := New("a", "b", "c")
+	m2 := New("c", "d", "e")
+	m := m1.Union(m2)
+
+	var list []string
+	for elem := range m.Iter() {
+		list = append(list, elem.(string))
+	}
+	sort.Strings(list)
+	fmt.Println(list)
+	// Output:
+	// [a b c d e]
+}
+
+func ExampleSet_Intersect() {
+	m1 := New("a", "b", "c")
+	m2 := New("c", "d", "e")
+	m := m1.Intersect(m2)
+
+	var list []string
+	for elem := range m.Iter() {
+		list = append(list, elem.(string))
+	}
+	sort.Strings(list)
+	fmt.Println(list)
+	// Output:
+	// [c]
+}
+
+func ExampleSet_Diff() {
+	m1 := New("a", "b", "c")
+	m2 := New("c", "d", "e")
+	m := m1.Diff(m2)
+
+	var list []string
+	for elem := range m.Iter() {
+		list = append(list, elem.(string))
+	}
+	sort.Strings(list)
+	fmt.Println(list)
+	// Output:
+	// [a b]
+}
+
+func ExampleSet_SymDiff() {
+	m1 := New("a", "b", "c")
+	m2 := New("c", "d", "e")
+	m := m1.SymDiff(m2)
+
+	var list []string
+	for elem := range m.Iter() {
+		list = append(list, elem.(string))
+	}
+	sort.Strings(list)
+	fmt.Println(list)
+	// Output:
+	// [a b d e]
+}
