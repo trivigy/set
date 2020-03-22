@@ -8,7 +8,7 @@ import (
 
 // Set represents the set data structure.
 type Set struct {
-	sync.RWMutex
+	lock sync.RWMutex
 	elems map[interface{}]struct{}
 }
 
@@ -29,8 +29,8 @@ func (s *Set) String() string {
 
 // Add adds occurrences of each of the specified elements to this set.
 func (s *Set) Add(l ...interface{}) {
-	s.Lock()
-	defer s.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	for _, e := range l {
 		s.add(e)
 	}
@@ -49,8 +49,8 @@ func (s *Set) add(e interface{}) bool {
 // specified elements. If at least one occurrence missing returns false;
 // otherwise true.
 func (s *Set) Contains(l ...interface{}) bool {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.contains(l...)
 }
 
@@ -66,10 +66,10 @@ func (s *Set) contains(l ...interface{}) bool {
 // Equals compares the specified set with this set for equality. Returns true if
 // this set contains equal elements; false otherwise.
 func (s *Set) Equals(o *Set) bool {
-	s.RLock()
-	o.RLock()
-	defer s.RUnlock()
-	defer o.RUnlock()
+	s.lock.RLock()
+	o.lock.RLock()
+	defer s.lock.RUnlock()
+	defer o.lock.RUnlock()
 	return s.equals(o)
 }
 
@@ -89,22 +89,22 @@ func (s *Set) equals(o *Set) bool {
 // Clear removes all of the elements from this set. The collection will be empty
 // after this method returns.
 func (s *Set) Clear() {
-	s.Lock()
-	defer s.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.elems = make(map[interface{}]struct{})
 }
 
 // IsEmpty returns true if this set contains no elements; false otherwise.
 func (s *Set) IsEmpty() bool {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.size() == 0
 }
 
 // Size returns the total number of elements in this set.
 func (s *Set) Size() int {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.size()
 }
 
@@ -115,8 +115,8 @@ func (s *Set) size() int {
 // Remove removes each of the specified elements from this set, if present.
 // Returns true if this set changed as a result of the call
 func (s *Set) Remove(l ...interface{}) bool {
-	s.Lock()
-	defer s.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	var changed bool
 	for _, e := range l {
 		if count := s.remove(e); count {
@@ -138,8 +138,8 @@ func (s *Set) remove(e interface{}) bool {
 func (s *Set) Iter() <-chan interface{} {
 	ch := make(chan interface{})
 	go func() {
-		s.RLock()
-		defer s.RUnlock()
+		s.lock.RLock()
+		defer s.lock.RUnlock()
 		for elem := range s.elems {
 			ch <- elem
 		}
@@ -151,8 +151,8 @@ func (s *Set) Iter() <-chan interface{} {
 // ToSlice returns a slice containing all elements of this set.
 func (s *Set) ToSlice() []interface{} {
 	slice := make([]interface{}, 0, s.Size())
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	for elem := range s.elems {
 		slice = append(slice, elem)
 	}
@@ -161,8 +161,8 @@ func (s *Set) ToSlice() []interface{} {
 
 // Subset determines if every item in the other set is in this set.
 func (s *Set) Subset(o *Set) bool {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	for elem := range s.elems {
 		if !o.contains(elem) {
 			return false
@@ -178,8 +178,8 @@ func (s *Set) Superset(o *Set) bool {
 
 // Union returns a new set with all items in both sets.
 func (s *Set) Union(o *Set) *Set {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.union(o)
 }
 
@@ -196,8 +196,8 @@ func (s *Set) union(o *Set) *Set {
 
 // Intersect returns a new set with items that exist only in both sets.
 func (s *Set) Intersect(o *Set) *Set {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.intersect(o)
 }
 
@@ -223,8 +223,8 @@ func (s *Set) intersect(o *Set) *Set {
 // Diff returns a new set with items in the current set but not in the other
 // set.
 func (s *Set) Diff(o *Set) *Set {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.diff(o)
 }
 
@@ -241,7 +241,7 @@ func (s *Set) diff(o *Set) *Set {
 // SymDiff returns a new set with items in the current set or the other set but
 // not in both.
 func (s *Set) SymDiff(o *Set) *Set {
-	s.RLock()
-	defer s.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.diff(o).union(o.diff(s))
 }
